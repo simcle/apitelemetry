@@ -214,8 +214,8 @@ export const getWaterStatsByRagne = async (req, res) => {
 }
 
 export const insertSMS = async (req, res) => {
-    const payload = req
-    console.log(payload)
+    const payload = req.body
+   
     try {
         const data = await SmsModel.create(payload)
         eventBus.emit('sms', data)
