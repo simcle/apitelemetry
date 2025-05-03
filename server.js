@@ -132,6 +132,7 @@ cron.schedule('59 23 * * *', async () => {
 const app = express()
 
 app.use(cors({origin: '*', methods: ['*']}))
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json())
 
 // ROUTER
