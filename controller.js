@@ -5,6 +5,37 @@ import MobileUsageModel from './mobileUsage.js'
 import AlertModel from './alert.js'
 import eventBus from './event.js'
 import WaterLevelCategoryModel from './waterLevelCategory.js'
+import axios from 'axios'
+
+
+export const getQuota = async (req, res) => {
+    try {
+        const authLogin = {
+            "username": "admin",
+            "password": "Admin@19284637"
+        }
+        const url = 'http://192.168.2.1/api'
+
+        const login = await axios.post(`${url}/login`, authLogin)
+        console.log(login)
+        const token = login.data.data.token
+        const data = await axios.post(`${url}/messages/actions/send`, {
+            "data": {
+                "number": "3636",
+                "message": "UL INFO",
+                "modem": "3-1"
+            }
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        res.status(200).json('OK')
+    } catch (error) {
+        res.status(400).send('error') 
+    }
+}
+
 
 export const insertSensor = async (req, res) => {
     const data = req.body
@@ -408,3 +439,5 @@ const insertWater = async () => {
 }
 
 // insertWater()
+
+

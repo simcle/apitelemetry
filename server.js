@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 import cron from 'node-cron'
 import eventBus from './event.js'
 import { addTobuffer, flushBufferToDB } from './buffer.js'
-import { insertSensor, getSensor, updateSensor, insertLogger, getLogger, getWaterStats24Hours, getWaterStatsByRagne, insertSMS, getSMS, insertMobileUsage, getMobileUsage, getAlert } from './controller.js'
+import { getQuota, insertSensor, getSensor, updateSensor, insertLogger, getLogger, getWaterStats24Hours, getWaterStatsByRagne, insertSMS, getSMS, insertMobileUsage, getMobileUsage, getAlert } from './controller.js'
 
 const sensorHeight = 800 // Jarak sensor ke dasar sungai
 const maxRange = 800 // maximum range sensor
@@ -25,7 +25,7 @@ const loggerData = {
 
 // MQTT CLIENT
 const mqttClient = mqtt.connect('mqtts://mqtt.ndpteknologi.com:8883', {
-    clientId: 'node-client',
+    clientId: `node-client-${Date.now()}`,
     rejectUnauthorized: false
 })
 
@@ -149,7 +149,7 @@ app.post('/sms', insertSMS)
 app.get('/sms', getSMS)
 app.get('/mobile', getMobileUsage)
 app.get('/alert', getAlert)
-
+app.get('/quota', getQuota)
 const PORT = 3000
 const dbURL = process.env.DBURL
 mongoose.set('strictQuery', false)
