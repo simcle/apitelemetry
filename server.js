@@ -120,14 +120,19 @@ cron.schedule('*/2 * * * *', async () => {
     setTimeout(() => {
         flushBufferToDB()
     }, 5000)
+}, {
+    timezone: 'Asia/Jakarta'
 })
 
 
 // CRONJOB MOBILE USAGE PER 1 HARI
 cron.schedule('59 23 * * *', async () => {
     await insertMobileUsage(mobileCurrent)
+}, {
+    timezone: 'Asia/Jakarta'
 })
-
+const date = new Date()
+console.log(date.toLocaleString())
 // SERVER
 const app = express()
 
