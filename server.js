@@ -131,8 +131,7 @@ cron.schedule('59 23 * * *', async () => {
 }, {
     timezone: 'Asia/Jakarta'
 })
-const date = new Date()
-console.log(date.toLocaleString())
+
 // SERVER
 const app = express()
 
