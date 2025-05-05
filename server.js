@@ -70,15 +70,18 @@ mqttClient.on('message', async (topic, message) => {
             if(payload['sensor_420']) {
 
                 // DUMMY RANDOM 
-                const random = Math.floor(Math.random() * (20000 - 4000 + 1)) + 4000;
+                // const random = Math.floor(Math.random() * (20000 - 4000 + 1)) + 4000;
                 
-                const raw = payload?.sensor_420?.[0]?.data || `"${random}"`
-                const match = raw.match(/\d+/)
-                const currentMa = parseInt(match[0]) / 1000 
-                loggerData.waterLevel = getWaterLevel(currentMa, sensorHeight, maxRange)
+                // const raw = payload?.sensor_420?.[0]?.data || `"${random}"`
+                // const match = raw.match(/\d+/)
+                // const currentMa = parseInt(match[0]) / 1000 
+                // loggerData.waterLevel = getWaterLevel(currentMa, sensorHeight, maxRange)
             }
             if(payload['sensor_rs485']) {
-                console.log('ini 485')
+                const raw = payload?.sensor_rs485?.[0]?.data || "[0.00]"
+                const val = JSON.parse(raw)
+                const level = (val[0] * 100).toFixed(2)
+                loggerData.waterLevel = level
             }
             addTobuffer(serialNumber, {
                 ...loggerData,
