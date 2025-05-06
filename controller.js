@@ -159,6 +159,7 @@ export const getWaterStatsByRagne = async (req, res) => {
                     serialNumber: {$first: '$serialNumber'},
                     waterLevel: {$last: '$waterLevel'},
                     timestamp: {$last: '$timestamp'},
+                    status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
                 {$sort: {createdAt: -1}}
@@ -183,6 +184,7 @@ export const getWaterStatsByRagne = async (req, res) => {
                     serialNumber: {$first: '$serialNumber'},
                     waterLevel: {$last: '$waterLevel'},
                     timestamp: {$last: '$timestamp'},
+                    status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
                 {$sort: {createdAt: -1}}
@@ -207,6 +209,7 @@ export const getWaterStatsByRagne = async (req, res) => {
                     serialNumber: {$first: '$serialNumber'},
                     waterLevel: {$last: '$waterLevel'},
                     timestamp: {$last: '$timestamp'},
+                    status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
                 {$sort: {createdAt: -1}}
@@ -231,6 +234,7 @@ export const getWaterStatsByRagne = async (req, res) => {
                     serialNumber: {$first: '$serialNumber'},
                     waterLevel: {$last: '$waterLevel'},
                     timestamp: {$last: '$timestamp'},
+                    status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
                 {$sort: {createdAt: -1}}
