@@ -373,6 +373,15 @@ export const getAlert = async (req, res) => {
         res.status(400).send(error)
     }
 }
+
+export const getWaterlevelCategory = async(req, res) => {
+    try {
+        const data = await WaterLevelCategoryModel.find().sort({severity: 1})
+        res.status(200).json(data)
+    } catch (error) {
+        res.status(400).send(error)
+    }
+}
 eventBus.on('status', async (payload) => {
     const status = payload.status
     const serialNumber = payload.clientid 

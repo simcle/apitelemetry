@@ -6,7 +6,7 @@ import mongoose from 'mongoose'
 import cron from 'node-cron'
 import eventBus from './event.js'
 import { addTobuffer, flushBufferToDB } from './buffer.js'
-import { getQuota, insertSensor, getSensor, updateSensor, insertLogger, getLogger, getWaterStats24Hours, getWaterStatsByRagne, insertSMS, getSMS, insertMobileUsage, getMobileUsage, getAlert } from './controller.js'
+import { getQuota, insertSensor, getSensor, updateSensor, insertLogger, getLogger, getWaterStats24Hours, getWaterStatsByRagne, insertSMS, getSMS, insertMobileUsage, getMobileUsage, getAlert , getWaterlevelCategory} from './controller.js'
 
 const sensorHeight = 800 // Jarak sensor ke dasar sungai
 const maxRange = 800 // maximum range sensor
@@ -153,6 +153,8 @@ app.get('/sms', getSMS)
 app.get('/mobile', getMobileUsage)
 app.get('/alert', getAlert)
 app.get('/quota', getQuota)
+app.get('/water-category', getWaterlevelCategory)
+
 const PORT = 3000
 const dbURL = process.env.DBURL
 mongoose.set('strictQuery', false)
