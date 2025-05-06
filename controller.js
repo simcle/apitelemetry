@@ -16,7 +16,7 @@ export const getQuota = async (req, res) => {
         }
         const url = 'http://192.168.2.1/api'
 
-        const login = await axios.post(`${url}/login`, authLogin)
+        const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
         console.log(login)
         const token = login.data.data.token
         const data = await axios.post(`${url}/messages/actions/send`, {
@@ -28,7 +28,8 @@ export const getQuota = async (req, res) => {
         }, {
             headers: {
                 'Authorization': `Bearer ${token}`
-            }
+            },
+            timeout: 10000
         })
         res.status(200).json('OK')
     } catch (error) {
