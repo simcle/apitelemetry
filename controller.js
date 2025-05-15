@@ -6,7 +6,9 @@ import AlertModel from './alert.js'
 import eventBus from './event.js'
 import WaterLevelCategoryModel from './waterLevelCategory.js'
 import axios from 'axios'
-
+import dayjs from 'dayjs'
+import 'dayjs/locale/id.js'
+dayjs.locale('id')
 
 export const getQuota = async (req, res) => {
     try {
@@ -17,7 +19,7 @@ export const getQuota = async (req, res) => {
         const url = 'http://192.168.2.1/api'
 
         const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
-        console.log(login)
+        
         const token = login.data.data.token
         const data = await axios.post(`${url}/messages/actions/send`, {
             "data": {
@@ -73,6 +75,7 @@ export const insertLogger = async (payload) => {
             min: { $lte: level },
             max: { $gte: level }
         })
+       
         payload.status = alert?.name || null
         if(alert && alert?.name !== 'AMAN') {
             const data = {
@@ -86,10 +89,50 @@ export const insertLogger = async (payload) => {
             }
             await AlertModel.create(data)
             eventBus.emit('alert', data)
+            sendSMSNotification(data)
         }
         await LoggerModel.create(payload)
     } catch (error) {
         console.log(error)   
+    }
+}
+
+let alertLevel;
+
+const sendSMSNotification = async (alert) => {
+    if(alertLevel !== alert.type) {
+        const phoneGroups = ['+6285316655882', '+6285217453399']
+        alertLevel = alert.type
+        const authLogin = {
+            "username": "admin",
+            "password": "Admin@19284637"
+        }
+
+        const url = 'http://192.168.2.1/api'
+        try {
+            const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
+            const token = login.data.data.token
+            const message = `${alert.type} Lokasi - Katulampa; ketinggian air - ${alert.level}; Waktu - ${dayjs(alert.timestamp).format('DD/MM/YY hh:mm')}; ${alert.message}`
+            console.log(message)
+            for (let phone of phoneGroups) {
+                await axios.post(`${url}/messages/actions/send`, {
+                    "data": {
+                        "number": `${phone}`,
+                        "message": `${message}`,
+                        "modem": "3-1"
+                    }
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    timeout: 5000
+                })
+            }
+        } catch (error) {
+            console.log(error)
+        }
+        
+        
     }
 }
 
