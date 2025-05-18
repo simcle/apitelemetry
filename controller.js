@@ -102,9 +102,9 @@ let alertLevel;
 const sendSMSNotification = async (alert) => {
     if(alertLevel !== alert.type) {
         alertLevel = alert.type
-        if(alert.type == 'AMANT') return
+        if(alert.type == 'AMAN') return
 
-        const phoneGroups = ['+6285316655882', '+6285217453399']
+        const phoneGroups = ['+6283832763393', '+6285217453399']
         const authLogin = {
             "username": "admin",
             "password": "Admin@19284637"
