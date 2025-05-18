@@ -89,8 +89,8 @@ export const insertLogger = async (payload) => {
             }
             await AlertModel.create(data)
             eventBus.emit('alert', data)
-            sendSMSNotification(data)
         }
+        sendSMSNotification(data)
         await LoggerModel.create(payload)
     } catch (error) {
         console.log(error)   
@@ -101,8 +101,10 @@ let alertLevel;
 
 const sendSMSNotification = async (alert) => {
     if(alertLevel !== alert.type) {
-        const phoneGroups = ['+6285316655882', '+6285217453399']
         alertLevel = alert.type
+        if(alert.type == 'AMANT') return
+
+        const phoneGroups = ['+6285316655882', '+6285217453399']
         const authLogin = {
             "username": "admin",
             "password": "Admin@19284637"
