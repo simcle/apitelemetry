@@ -77,8 +77,9 @@ export const insertLogger = async (payload) => {
         })
        
         payload.status = alert?.name || null
+        let data;
         if(alert && alert?.name !== 'AMAN') {
-            const data = {
+            data = {
                 serialNumber: payload.serialNumber,
                 type: alert.name,
                 color: alert.color,
