@@ -10,6 +10,7 @@ const SensorSchema = new Schema({
         index: '2dsphere',
         default: null
     },
+    ipAddress: {type: String},
     gsm: {type: String},
     serialNumber: {type: String},
     status: {type: Boolean, default: true}

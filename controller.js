@@ -12,12 +12,15 @@ dayjs.locale('id')
 
 export const getQuota = async (req, res) => {
     try {
+        const serialNumber = req.params.serialNumber
+        const devices = await SensorModel.findOne({serialNumber: serialNumber})
+        
+        const ip = devices.ipAddress
         const authLogin = {
             "username": "admin",
             "password": "Admin@19284637"
         }
-        const url = 'http://192.168.2.1/api'
-
+        const url = 'http://'+ip+'/api'
         const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
         
         const token = login.data.data.token
@@ -51,8 +54,9 @@ export const insertSensor = async (req, res) => {
 }
 
 export const getSensor = async (req, res) => {
+    const sn = req.params.sn
     try {
-        const data = await SensorModel.findOne()
+        const data = await SensorModel.findOne({serialNumber: sn})
         res.status(200).json(data) 
     } catch (error) {
         res.status(400).send(error)
@@ -70,15 +74,17 @@ export const updateSensor = async (payload) => {
 }
 export const insertLogger = async (payload) => {
     try {
+        const sn = payload.serialNumber
+        console.log(sn)
         const level = parseFloat(payload.waterLevel)
         const alert = await WaterLevelCategoryModel.findOne({
+            serialNumber: sn,
             min: { $lte: level },
             max: { $gte: level }
         })
-       
         payload.status = alert?.name || null
         let data;
-        if(alert && alert?.name !== 'AMAN') {
+        if(alert) {
             data = {
                 serialNumber: payload.serialNumber,
                 type: alert.name,
@@ -88,10 +94,12 @@ export const insertLogger = async (payload) => {
                 timestamp: payload.timestamp
 
             }
-            await AlertModel.create(data)
-            eventBus.emit('alert', data)
+            if(alert.name !== 'AMAN') {
+                await AlertModel.create(data)
+                eventBus.emit('alert', data)
+            }
+            sendSMSNotification(data)
         }
-        sendSMSNotification(data)
         await LoggerModel.create(payload)
     } catch (error) {
         console.log(error)   
@@ -104,25 +112,33 @@ const sendSMSNotification = async (alert) => {
     if(alertLevel !== alert.type) {
         alertLevel = alert.type
         if(alert.type == 'AMAN') return
-
-        const phoneGroups = ['+6283832763393', '+6285217453399']
+        const sn = alert.serialNumber
+        let modem;
+        if(sn == '6003046092') {
+            modem = '3-1'
+        } else {
+            modem = '1-1.4'
+        }
+        const sensor = await SensorModel.findOne({serialNumber:sn})
+        const ip = sensor.ipAddress
+        const loc = sensor.name
+        const phoneGroups = ['+6283832763393','+6285316655882','+6285217453399']
         const authLogin = {
             "username": "admin",
             "password": "Admin@19284637"
         }
 
-        const url = 'http://192.168.2.1/api'
+        const url = 'http://'+ip+'api'
         try {
             const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
             const token = login.data.data.token
-            const message = `${alert.type} Lokasi - Katulampa; ketinggian air - ${alert.level}; Waktu - ${dayjs(alert.timestamp).format('DD/MM/YY hh:mm')}; ${alert.message}`
-            console.log(message)
+            const message = `${alert.type} Lokasi - ${loc}; ketinggian air - ${alert.level}; Waktu - ${dayjs(alert.timestamp).format('DD/MM/YY hh:mm')}; ${alert.message}`
             for (let phone of phoneGroups) {
                 await axios.post(`${url}/messages/actions/send`, {
                     "data": {
                         "number": `${phone}`,
                         "message": `${message}`,
-                        "modem": "3-1"
+                        "modem": `${modem}`
                     }
                 }, {
                     headers: {
@@ -159,7 +175,7 @@ export const getWaterStats24Hours = async (req, res) => {
             timestamp: {$gte: yesterday, $lte: now},
         }},
         {$group: {
-            _id: null,
+            _id: serialNumber,
             maxWaterLevel: { $max: '$waterLevel' },
             minWaterLevel: { $min: '$waterLevel' },
             avgWaterLevel: { $avg: '$waterLevel' },
@@ -309,7 +325,8 @@ export const insertSMS = async (req, res) => {
 
 export const getSMS = async (req, res) => {
     try {
-        const data = await SmsModel.find().sort({createdAt: -1})
+        const sn = req.params.serialNumber
+        const data = await SmsModel.find({serialNumber: sn}).sort({createdAt: -1})
         res.status(200).json(data)
     } catch (error) {
         res.status(400).send(error)
@@ -325,6 +342,7 @@ export const insertMobileUsage = async (payload) => {
 }
 
 export const getMobileUsage = async (req, res) => {
+    const sn = req.params.serialNumber
     try {
         const now = new Date();
 
@@ -346,7 +364,7 @@ export const getMobileUsage = async (req, res) => {
         const allUsage = await MobileUsageModel.aggregate([
             {
                 $match: {
-                serialNumber: '6003046092',
+                serialNumber: sn,
                 createdAt: { $gte: start30d, $lte: endOfYesterday }
                 }
             },
@@ -414,8 +432,9 @@ export const getMobileUsage = async (req, res) => {
 
 export const getAlert = async (req, res) => {
     try {
+        const sn = req.params.serialNumber
         const data = await AlertModel.aggregate([
-            {$match: {serialNumber: '6003046092'}},
+            {$match: {serialNumber: sn}},
             {$sort: {timestamp: -1}},
             {$limit: 20}
         ])
@@ -427,7 +446,8 @@ export const getAlert = async (req, res) => {
 
 export const getWaterlevelCategory = async(req, res) => {
     try {
-        const data = await WaterLevelCategoryModel.find().sort({severity: 1})
+        const sn = req.params.serialNumber
+        const data = await WaterLevelCategoryModel.find({serialNumber: sn}).sort({severity: 1})
         res.status(200).json(data)
     } catch (error) {
         res.status(400).send(error)
@@ -464,6 +484,7 @@ eventBus.on('status', async (payload) => {
 const insertWater = async () => {
     await WaterLevelCategoryModel.insertMany([
         {
+            serialNumber: '6003046092',
             name: 'AMAN',
             min: 0,
             max: 200.49,
@@ -472,6 +493,7 @@ const insertWater = async () => {
             severity: 1
           },
           {
+            serialNumber: '6003046092',
             name: 'WASPADA',
             min: 200.5,
             max: 399.99,
@@ -480,6 +502,7 @@ const insertWater = async () => {
             severity: 2
           },
           {
+            serialNumber: '6003046092',
             name: 'SIAGA',
             min: 400.0,
             max: 500.49,
@@ -488,6 +511,7 @@ const insertWater = async () => {
             severity: 3
           },
           {
+            serialNumber: '6003046092',
             name: 'AWAS',
             min: 500.5,
             max: 1000,

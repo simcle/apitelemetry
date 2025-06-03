@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 
 const { Schema } = mongoose
 const WaterLevelCategorySchema = new Schema({
+  serialNumber: {type: String},
   name: {
     type: String,
     enum: ['AMAN', 'WASPADA', 'SIAGA', 'AWAS'],

@@ -41,17 +41,17 @@ mqttClient.on('error', (err) => {
 
 // EVENT UNTUK ALERT/NOTIFIKASI
 eventBus.on('alert', (data) => {
-    mqttClient.publish('alert', JSON.stringify(data))
+    mqttClient.publish('alert/'+data.serialNumber, JSON.stringify(data))
 })
 
 // EVENT UNTUK SMS
 eventBus.on('sms', (data) => {
-    mqttClient.publish('sms', JSON.stringify(data))
+    mqttClient.publish('sms/'+data.serialNumber, JSON.stringify(data))
 })
 
 // EVENT UNTUK UPDATE CHART DATA 
 eventBus.on('chart', (data) => {
-    mqttClient.publish('chart', JSON.stringify(data))
+    mqttClient.publish('chart/'+data.serialNumber, JSON.stringify(data))
 }) 
 
 const mobileCurrent = {}
@@ -87,7 +87,7 @@ mqttClient.on('message', async (topic, message) => {
                 ...loggerData,
                 timestamp: new Date()
             })
-            mqttClient.publish('level', `${loggerData.waterLevel}`)
+            mqttClient.publish('level/'+serialNumber, `${loggerData.waterLevel}`)
             
         }
         if(topic.startsWith('status/')) {
@@ -144,16 +144,16 @@ app.use(express.json())
 
 // ROUTER
 app.post('/sensor', insertSensor)
-app.get('/sensor', getSensor)
+app.get('/sensor/:sn', getSensor)
 app.get('/logger', getLogger)
 app.get('/logger/:serialNumber', getWaterStats24Hours)
 app.get('/logger/report/:serialNumber', getWaterStatsByRagne)
 app.post('/sms', insertSMS)
-app.get('/sms', getSMS)
-app.get('/mobile', getMobileUsage)
-app.get('/alert', getAlert)
-app.get('/quota', getQuota)
-app.get('/water-category', getWaterlevelCategory)
+app.get('/sms/:serialNumber', getSMS)
+app.get('/mobile/:serialNumber', getMobileUsage)
+app.get('/alert/:serialNumber', getAlert)
+app.get('/quota/:serialNumber', getQuota)
+app.get('/water-category/:serialNumber', getWaterlevelCategory)
 
 const PORT = 3000
 const dbURL = process.env.DBURL

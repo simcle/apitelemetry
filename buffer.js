@@ -44,5 +44,4 @@ const isOffline = async (serialNumber, latestData) => {
 	latestData.waterLevel = 0
 	latestData.timestamp = new Date()
 	await insertLogger(latestData)
-	eventBus.emit('chart', latestData)
 }
