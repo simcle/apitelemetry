@@ -78,9 +78,12 @@ mqttClient.on('message', async (topic, message) => {
                 // loggerData.waterLevel = getWaterLevel(currentMa, sensorHeight, maxRange)
             }
             if(payload['sensor_rs485']) {
-                const raw = payload?.sensor_rs485?.[0]?.data || "[0.00]"
+                // const parse = JSON.parse(payload?.sensor_rs485)
+                const raw = payload?.sensor_rs485 || '{"data": [0.00]}'
+                
                 const val = JSON.parse(raw)
-                const level = (val[0] * 100).toFixed(2)
+                const level = (val.data[0] * 100).toFixed(2)
+                console.log(level)
                 loggerData.waterLevel = level
             }
             addTobuffer(serialNumber, {
