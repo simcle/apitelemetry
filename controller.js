@@ -456,7 +456,7 @@ export const getWaterlevelCategory = async(req, res) => {
 eventBus.on('status', async (payload) => {
     const status = payload.status
     const serialNumber = payload.clientid 
-    if(serialNumber == '6003046092') {
+    if(serialNumber == '6000949067') {
         
         if(status == 'online') {
             const data = await AlertModel.create({
