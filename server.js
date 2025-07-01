@@ -1,6 +1,6 @@
 import mqtt from 'mqtt'
 import "dotenv/config"
-import express from 'express'
+import express, { json } from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import cron from 'node-cron'
@@ -57,7 +57,7 @@ eventBus.on('chart', (data) => {
 const mobileCurrent = {}
 mqttClient.on('message', async (topic, message) => {
     try {
-
+    
         // SENSOR DATA
         if(topic.startsWith('device/')) {
             const [, serialNumber] = topic.split('/')
@@ -79,12 +79,16 @@ mqttClient.on('message', async (topic, message) => {
             }
             if(payload['sensor_rs485']) {
                 // const parse = JSON.parse(payload?.sensor_rs485)
-                const raw = payload?.sensor_rs485 || '{"data": [0.00]}'
-                
-                const val = JSON.parse(raw)
-                const level = (val.data[0] * 100).toFixed(2)
-                console.log(level)
-                loggerData.waterLevel = level
+                const raws = payload?.sensor_rs485 
+                let level = 0
+                for (const sensor of raws ) {
+                    if(sensor.name == 'level') {
+                        const raw = JSON.parse(sensor.data)
+                        level = raw[0] || 0
+                        level = (raw * 100).toFixed(2) // meter to cm
+                        loggerData.waterLevel = level
+                    }
+                }
             }
             addTobuffer(serialNumber, {
                 ...loggerData,
