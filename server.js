@@ -8,9 +8,6 @@ import eventBus from './event.js'
 import { addTobuffer, flushBufferToDB } from './buffer.js'
 import { getQuota, insertSensor, getSensor, updateSensor, insertLogger, getLogger, getWaterStats24Hours, getWaterStatsByRagne, insertSMS, getSMS, insertMobileUsage, getMobileUsage, getAlert , getWaterlevelCategory} from './controller.js'
 
-const sensorHeight = 800 // Jarak sensor ke dasar sungai
-const maxRange = 800 // maximum range sensor
-
 const loggerData = {
     serialNumber: '',
     rawMa: 0,
@@ -57,7 +54,10 @@ eventBus.on('chart', (data) => {
 const mobileCurrent = {}
 mqttClient.on('message', async (topic, message) => {
     try {
-    
+        let level = 0
+        let realTimeFlowRate = 0
+        let instanTraffic = 0
+
         // SENSOR DATA
         if(topic.startsWith('device/')) {
             const [, serialNumber] = topic.split('/')
@@ -80,21 +80,33 @@ mqttClient.on('message', async (topic, message) => {
             if(payload['sensor_rs485']) {
                 // const parse = JSON.parse(payload?.sensor_rs485)
                 const raws = payload?.sensor_rs485 
-                let level = 0
                 for (const sensor of raws ) {
+                    const raw = JSON.parse(sensor.data)
                     if(sensor.name == 'level') {
-                        const raw = JSON.parse(sensor.data)
-                        level = raw[0] || 0
-                        level = (raw * 100).toFixed(2) // meter to cm
+                        level = (raw[0] * 100).toFixed(2) // meter to cm
                         loggerData.waterLevel = level
                     }
+
+                    if(sensor.name == 'realTimeFlowRate') {
+                        realTimeFlowRate = raw[0].toFixed(2)
+                    }
+
+                    if(sensor.name == 'instantTraffic') {
+                        instanTraffic = raw[0].toFixed(2)
+                    }
                 }
+
             }
             addTobuffer(serialNumber, {
                 ...loggerData,
                 timestamp: new Date()
             })
+            const flow = {
+                realTimeFlowRate: realTimeFlowRate,
+                instanTraffic: instanTraffic
+            }
             mqttClient.publish('level/'+serialNumber, `${loggerData.waterLevel}`)
+            mqttClient.publish('flow/'+serialNumber, JSON.stringify(flow))
             
         }
         if(topic.startsWith('status/')) {
