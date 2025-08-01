@@ -1,0 +1,7 @@
+API URL
+auth
+POST /api/auth/login
+
+sensor
+POST /api/telemetry
+
