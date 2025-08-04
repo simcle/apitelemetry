@@ -45,6 +45,7 @@ export const getQuota = async (request, reply) => {
         const url = 'http://'+ip+'/api'
         const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
         const token = login.data.data.token
+        console.log(token)
         await axios.post(`${url}/messages/actions/send`, {
             "data": {
                 "number": "3636",
@@ -61,6 +62,7 @@ export const getQuota = async (request, reply) => {
             success: true
         })
     } catch (error) {
+
         reply.code(400).send(error)
     }   
 }
