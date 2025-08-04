@@ -42,9 +42,9 @@ export const getQuota = async (request, reply) => {
             "username": "admin",
             "password": "Admin@19284637"
         }
-        console.log(modem)
         const url = 'http://'+ip+'/api'
         const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
+        console.log(login)
         const token = login.data.data.token
         await axios.post(`${url}/messages/actions/send`, {
             "data": {
