@@ -30,7 +30,6 @@ export const getQuota = async (request, reply) => {
     const deviceId = request.params.id 
     try {
         const device = await sensorModel.findById(deviceId)
-        console.log(device)
         const logger = device?.logger?.loggerType
         const ip = device.logger?.loggerIp
         let modem = '1-1.4'
@@ -43,6 +42,7 @@ export const getQuota = async (request, reply) => {
             "username": "admin",
             "password": "Admin@19284637"
         }
+        console.log(modem)
         const url = 'http://'+ip+'/api'
         const login = await axios.post(`${url}/login`, authLogin, {timeout: 5000})
         const token = login.data.data.token
