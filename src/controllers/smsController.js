@@ -62,7 +62,7 @@ export const getQuota = async (request, reply) => {
             success: true
         })
     } catch (error) {
-
+        console.log(error)
         reply.code(400).send(error)
     }   
 }
