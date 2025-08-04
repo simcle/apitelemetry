@@ -30,7 +30,14 @@ export const getQuota = async (request, reply) => {
     const deviceId = request.params.id 
     try {
         const device = await sensorModel.findById(deviceId)
+        const logger = device?.logger?.loggerType
         const ip = device.logger?.loggerIp
+        let modem = '1-1.4'
+        if(logger == 'TRB145') {
+            modem = '3-1'
+        } else if (logger == 'RUT906') {
+            modem = '1-1.4'
+        }
         const authLogin = {
             "username": "admin",
             "password": "Admin@19284637"
@@ -42,7 +49,7 @@ export const getQuota = async (request, reply) => {
             "data": {
                 "number": "3636",
                 "message": "UL INFO",
-                "modem": "1-1.4"
+                "modem": `${modem}`
             }
         }, {
             headers: {
