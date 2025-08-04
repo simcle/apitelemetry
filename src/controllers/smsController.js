@@ -28,9 +28,9 @@ export const getSms = async (request, reply) => {
 
 export const getQuota = async (request, reply) => {
     const deviceId = request.params.id 
-    console.log(deviceId)
     try {
         const device = await sensorModel.findById(deviceId)
+        console.log(device)
         const logger = device?.logger?.loggerType
         const ip = device.logger?.loggerIp
         let modem = '1-1.4'
