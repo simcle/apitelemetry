@@ -33,4 +33,6 @@ const flushToDB = async () => {
 
 cron.schedule('59 23 * * *', async () => {
     flushToDB()
+}, {
+    timezone: 'Asia/Jakarta'
 })

@@ -14,7 +14,7 @@ export const addToBuffer = (deviceId, data) => {
 export const setStatusDevice = async (deviceId, status) => {
     if(mongoose.Types.ObjectId.isValid(deviceId)) {
         const sensor = await sensorModel.findOne({_id: deviceId})
-        
+        console.log(deviceId, status)
         // update status sensor online or offline
         if(sensor) {
             const payloadAlert = {
