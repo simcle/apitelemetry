@@ -19,20 +19,3 @@ export const addMobile = async (deviceId, data) => {
     lastValue.set(deviceId, {tx, rx})
     latestData.set(deviceId, {tx, rx})
 }
-
-const flushToDB = async () => {
-    const date = new Date().toISOString().split('T')[0]
-    for(let [deviceId, {tx, rx}] of latestData.entries()) {
-        await MobileUsageModel.updateOne(
-            {deviceId, date},
-            {$set: {tx, rx}},
-            {upsert: true}
-        )
-    }
-}
-
-cron.schedule('59 23 * * *', async () => {
-    flushToDB()
-}, {
-    timezone: 'Asia/Jakarta'
-})
