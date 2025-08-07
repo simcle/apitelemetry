@@ -5,7 +5,6 @@ const lastValue = new Map()
 const latestData = new Map()
 
 export const addMobile = async (deviceId, data) => {
-    console.log(data)
     const { tx, rx } = data
     const prev = lastValue.get(deviceId) || {tx:0, rx: 0}
     if(tx < prev.tx || rx < prev.rx) {
