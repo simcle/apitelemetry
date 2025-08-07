@@ -7,6 +7,10 @@ import cron from 'node-cron'
 import mongoose from "mongoose"
 const buffer = new Map()
 
+export const addToBuffer = (deviceId, data) => {
+    buffer.set(deviceId, data)
+}
+
 export const setStatusDevice = async (deviceId, status) => {
     if(mongoose.Types.ObjectId.isValid(deviceId)) {
         const sensor = await sensorModel.findOne({_id: deviceId})
