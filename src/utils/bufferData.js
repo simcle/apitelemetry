@@ -11,40 +11,40 @@ export const addToBuffer = (deviceId, data) => {
     buffer.set(deviceId, data)
 }
 
-export const setStatusDevice = async (deviceId, status) => {
-    if(mongoose.Types.ObjectId.isValid(deviceId)) {
-        const sensor = await sensorModel.findOne({_id: deviceId})
-        // update status sensor online or offline
-        if(sensor) {
-            const payloadAlert = {
-                deviceId: deviceId,
-                type: '',
-                color: '',
-                message: '',
-                timestamp: new Date()
-            }
-            if(status) {
-                payloadAlert.type = 'DEVICE ONLINE'
-                payloadAlert.color = 'text-green-500'
-                payloadAlert.message = 'Perangkat telah online dan terhubung ke server.'
-            } else {
-                payloadAlert.type = 'DEVICE OFFLINE'
-                payloadAlert.color = 'text-red-500'
-                payloadAlert.message = 'Perangkat tidak terhubung (OFFLINE) Kemungkinan gangguan jaringan, power supply, atau restart tidak normal.'
-            }
-            sensor.isOnline = status
-            sensor.save()
-            const data = await alertModel.create(payloadAlert)
-            eventBus.emit('alert', data)
+export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
+    if(mongoose.Types.ObjectId.isValid(deviceId)) return
+
+    const updated = await sensorModel.findOneAndUpdate(
+        {
+            _id: deviceId,
+            isOnline: {$ne: !!status}
+        }, {
+            $set: {isOnline: !!status}
+        }, {
+            new: true
         }
+
+    )
+    if(!updated) return
     
+    const payloadAlert = {
+        deviceId,
+        type: status ? 'DEVICE ONLINE' : 'DEVICE OFFLINE',
+        color: status ? 'text-green-500' : 'text-red-500',
+        message: status
+        ? 'Perangkat telah online dan terhubung ke server.'
+        : 'Perangkat tidak terhubung (OFFLINE) Kemungkinan gangguan jaringan, power supply, atau restart tidak normal.',
+        timestamp: ts
     }
+    sensor.isOnline = status
+    sensor.save()
+    const data = await alertModel.create(payloadAlert)
+    eventBus.emit('alert', data)
 
 }
 
 
 const flushBufferToDB = async () => {
-    
     for(const [deviceId, latestData] of buffer.entries()) {
         const payloadSensor = { 
             deviceId: deviceId,
@@ -74,6 +74,7 @@ const flushBufferToDB = async () => {
             }
 
             const data = await loggerModel.create(payloadSensor)
+            
             eventBus.emit('logger', data)
         } catch (error) {
             console.log(error)
