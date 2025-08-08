@@ -13,7 +13,7 @@ export const addToBuffer = (deviceId, data) => {
 
 export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
     if(!mongoose.Types.ObjectId.isValid(deviceId)) return
-
+    
     const updated = await sensorModel.findOneAndUpdate(
         {
             _id: deviceId,
@@ -26,7 +26,6 @@ export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
 
     )
     if(!updated) return
-
     const payloadAlert = {
         deviceId,
         type: status ? 'DEVICE ONLINE' : 'DEVICE OFFLINE',
@@ -36,8 +35,6 @@ export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
         : 'Perangkat tidak terhubung (OFFLINE) Kemungkinan gangguan jaringan, power supply, atau restart tidak normal.',
         timestamp: ts
     }
-    sensor.isOnline = status
-    sensor.save()
     const data = await alertModel.create(payloadAlert)
     eventBus.emit('alert', data)
 
