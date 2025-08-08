@@ -71,6 +71,15 @@ const flushBufferToDB = async () => {
             }
 
             const data = await loggerModel.create(payloadSensor)
+
+            buffer.set(deviceId, {
+                ...latestData,
+                level: 0,
+                realTimeFlowRate: 0,
+                instantTraffic: 0,
+                status: null,
+                timestamp: new Date()
+            })
             
             eventBus.emit('logger', data)
         } catch (error) {

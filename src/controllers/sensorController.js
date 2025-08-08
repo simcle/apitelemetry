@@ -1,5 +1,5 @@
 import sensorModel from '../models/sensorModel.js'
-
+import { addToMap } from '../utils/sensorData.js'
 
 export const getTelemetyById = async (request, reply) => {
   const id = request.params.id
@@ -35,9 +35,9 @@ export const getTelemetyById = async (request, reply) => {
 
 export const createTelemetry = async (request, reply) => {
     try {
-        const {name, serialNumber, logger, gsmNumber, cctvIp, location, sensorType } = request.body
+        const {name, serialNumber, logger, gsmNumber, cctvIp, elevasi, location, sensorType } = request.body
         // Validasi manual contoh (opsional, bisa pakai schema validation)
-        if (!serialNumber || !logger || !gsmNumber || !cctvIp || !location || !sensorType) {
+        if (!serialNumber || !logger || !gsmNumber || !cctvIp || !elevasi || !location || !sensorType) {
             return reply.code(400).send({
                 success: false,
                 message: 'Missing required fields'
@@ -49,10 +49,12 @@ export const createTelemetry = async (request, reply) => {
             cctvIp,
             logger,
             gsmNumber,
+            elevasi,
             location,
             sensorType
         });
         const saved = await data.save();
+        addToMap(saved._id, saved)
 
         return reply.code(201).send({
             success: true,
@@ -94,8 +96,8 @@ export const updateTemeletryById = async (request, reply) => {
                 message: 'Sensor not found'
             });
         }
-
-        reply.code(200).send({
+        addToMap(updatedSensor._id, updatedSensor)
+        return reply.code(200).send({
             success: true,
             message: 'Sensor updated successfully',
             data: updatedSensor
@@ -136,3 +138,11 @@ export const getAllTelemetry = async (request, reply) => {
     }
 }
 
+const onLoadData = async () => {
+    const data = await sensorModel.find()
+    data.forEach((item) => {
+        addToMap(item._id, item)
+    })
+}
+
+onLoadData()

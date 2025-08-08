@@ -1,6 +1,7 @@
 import mqtt from "mqtt";
 import { addToBuffer, setStatusDevice } from "../utils/bufferData.js";
 import { addMobile } from "../utils/bufferMobile.js";
+import { getSensorMap } from "../utils/sensorData.js";
 import eventBus from "../events/eventBus.js";
 
 export const startMqttClinet = (fastify) => {
@@ -37,6 +38,8 @@ export const startMqttClinet = (fastify) => {
             // DATA
             if(topic.startsWith('device/')) {
                 const [, deviceId] = topic.split('/')
+                const sensorMap = getSensorMap(deviceId)
+                
                 const payload = JSON.parse(message.toString())
                 if(payload['sensor_rs485']) {
                     let level = 0
@@ -46,7 +49,7 @@ export const startMqttClinet = (fastify) => {
                     for(const sensor of raws) {
                         if(sensor.name == 'level') {
                             const val = JSON.parse(sensor?.data)
-                            level = (val[0] * 100).toFixed(2) // meter to cm
+                            level = (val[0] + sensorMap.elevasi).toFixed(2) // meter to cm
                         }
                         if(sensor.name == 'instantTraffic') {
                             const val = JSON.parse(sensor?.data)
@@ -63,6 +66,24 @@ export const startMqttClinet = (fastify) => {
                         realTimeFlowRate: realTimeFlowRate,
                         timestamp : new Date()
                     }
+                    addToBuffer(deviceId, sensor)
+                    client.publish('sensor/'+deviceId, JSON.stringify(sensor))
+                }
+                if(payload['sensor_420']) {
+                    let level = 0
+                    let instantTraffic = 0
+                    let realTimeFlowRate = 0
+                    const data = parseInt(payload?.sensor_420[0]?.data)
+                    const ma = data / 1000
+                    level = scaleCurrentToMeter(ma) + sensorMap?.elevasi || 0
+                   
+                    const sensor = {
+                        level: level.toFixed(2),
+                        instantTraffic: instantTraffic,
+                        realTimeFlowRate: realTimeFlowRate,
+                        timestamp : new Date()
+                    }
+                    
                     addToBuffer(deviceId, sensor)
                     client.publish('sensor/'+deviceId, JSON.stringify(sensor))
                 }
@@ -96,4 +117,18 @@ export const startMqttClinet = (fastify) => {
     client.on('error', (err) => {
         fastify.log.error('❌ MQTT connection error', err);
     })
+}
+
+function scaleCurrentToMeter(mA) {
+    const sensorHeight = 7.6
+    const minCurrent = 4
+    const maxCurrent = 20
+    const rangeMeter = 15
+
+    if (mA < minCurrent) mA = minCurrent
+    if (mA > maxCurrent) mA = maxCurrent
+
+    const distance = (mA - minCurrent) * (rangeMeter / (maxCurrent - minCurrent))
+    const level = distance - sensorHeight
+    return level
 }

@@ -28,6 +28,10 @@ const sensorSchema = new mongoose.Schema({
         type: String,
         default: null,
     },
+    elevasi: {
+        type: Number,
+        required: true
+    },
     location: {
         address: {
             type: String,
