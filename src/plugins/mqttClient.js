@@ -45,9 +45,11 @@ export const startMqttClinet = (fastify) => {
                 if(payload['sensor_rs485']) {
                     const raws = payload?.sensor_rs485 
                     const data  = parseData(deviceId, raws)
+                    console.log(data.updatedData.level)
                     if(data.updatedData.level) {
                         data.updatedData.level = data.updatedData.level + sensorMap?.elevasi || 0
                     }
+                    console.log(data.updatedData.level)
                     const sensor = {
                         ...data.updatedData,
                         timestamp : new Date()
