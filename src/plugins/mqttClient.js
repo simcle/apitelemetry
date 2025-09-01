@@ -3,6 +3,7 @@ import { addToBuffer, setStatusDevice } from "../utils/bufferData.js";
 import { addMobile } from "../utils/bufferMobile.js";
 import { getSensorMap } from "../utils/sensorData.js";
 import eventBus from "../events/eventBus.js";
+import { parseData } from "./parseData.js";
 
 export const startMqttClinet = (fastify) => {
     const client = mqtt.connect(process.env.MQTT_URL, {
@@ -42,32 +43,17 @@ export const startMqttClinet = (fastify) => {
                 
                 const payload = JSON.parse(message.toString())
                 if(payload['sensor_rs485']) {
-                    let level = 0
-                    let instantTraffic = 0
-                    let realTimeFlowRate = 0
                     const raws = payload?.sensor_rs485 
-                    for(const sensor of raws) {
-                        if(sensor.name == 'level') {
-                            const val = JSON.parse(sensor?.data)
-                            level = (val[0] + sensorMap.elevasi).toFixed(2) // meter to cm
-                        }
-                        if(sensor.name == 'instantTraffic') {
-                            const val = JSON.parse(sensor?.data)
-                            instantTraffic = val[0].toFixed(2)
-                        }
-                        if((sensor.name == 'realTimeFlowRate')) {
-                            const val = JSON.parse(sensor?.data)
-                            realTimeFlowRate = val[0].toFixed(2)
-                        }
+                    const data  = parseData(deviceId, raws)
+                    if(data.updatedData.level) {
+                        data.updatedData.level = data.updatedData.level + sensorMap?.elevasi || 0
                     }
                     const sensor = {
-                        level: level,
-                        instantTraffic: instantTraffic,
-                        realTimeFlowRate: realTimeFlowRate,
+                        ...data.updatedData,
                         timestamp : new Date()
                     }
-                    addToBuffer(deviceId, sensor)
-                    client.publish('sensor/'+deviceId, JSON.stringify(sensor))
+                    addToBuffer(data.deviceId, sensor)
+                    client.publish('sensor/'+data.deviceId, JSON.stringify(sensor))
                 }
                 if(payload['sensor_420']) {
                     let level = 0
@@ -132,3 +118,4 @@ function scaleCurrentToMeter(mA) {
     const level = distance - sensorHeight
     return level
 }
+
