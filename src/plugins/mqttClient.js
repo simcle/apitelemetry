@@ -47,9 +47,11 @@ export const startMqttClinet = (fastify) => {
                     console.log(raws)
                     const data  = parseData(deviceId, raws)
                     console.log(data.updatedData.level)
-                    if(data.updatedData.level) {
-                        const elevasi = sensorMap?.elevasi ?? 0 
-                        data.updatedData.level = Number(data.updatedData.level) + Number(elevasi)
+                    const elevasi = Number(sensorMap?.elevasi ?? 0)
+                    const levelAwal = Number(data.updatedData.level)
+
+                    if (Number.isFinite(levelAwal)) {
+                    data.updatedData.level = Number((levelAwal + elevasi).toFixed(2))
                     }
                     console.log(data.updatedData.level)
                     const sensor = {
