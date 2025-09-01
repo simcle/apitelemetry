@@ -67,7 +67,7 @@ function transformMqttPayload(rawArray, lastData) {
         if (Array.isArray(data)) {
           const [v, c] = data.map(Number)
           if (v !== 0) lastData.battery.voltage = v / 100
-          if (c !== 0) lastData.battery.current = c
+          if (c !== 0) lastData.battery.current = c / 100
         }
         break
 
