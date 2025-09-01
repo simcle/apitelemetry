@@ -1,3 +1,4 @@
+import { getSensorMap } from "../utils/sensorData.js"
 
 const deviceDataMap = new Map()
 
@@ -17,13 +18,14 @@ export const parseData = (deviceId, rawArray) => {
     const lastData = deviceDataMap.get(deviceId)
    
     // Langkah 3: Transformasikan dan update lastData di Map
-    const updatedData = transformMqttPayload(rawArray, lastData)
+    const updatedData = transformMqttPayload(rawArray, lastData, deviceId)
     deviceDataMap.set(deviceId, updatedData)
     // ⏺️ Gunakan updatedData
     return { deviceId, updatedData}
 }
 
-function transformMqttPayload(rawArray, lastData) {
+function transformMqttPayload(rawArray, lastData, deviceId) {
+  const sensorMap = getSensorMap(deviceId)
   for (const item of rawArray) {
     const { name } = item
     let data = item.data
@@ -40,8 +42,13 @@ function transformMqttPayload(rawArray, lastData) {
 
     switch (name) {
       case 'level':
-        if (parseFloat(data) !== 0)
-          lastData.level = Number(parseFloat(data).toFixed(2))
+        const level = parseFloat(data)
+        const elevasi = Number(sensorMap?.elevasi ?? 0)
+
+        if (Number.isFinite(level)) {
+          lastData.rawLevel = level
+          lastData.level = Number((level + elevasi).toFixed(2))
+        }
         break
 
       case 'instantTraffic':

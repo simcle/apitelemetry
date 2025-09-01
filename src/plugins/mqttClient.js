@@ -39,20 +39,10 @@ export const startMqttClinet = (fastify) => {
             // DATA
             if(topic.startsWith('device/')) {
                 const [, deviceId] = topic.split('/')
-                const sensorMap = getSensorMap(deviceId)
-                
                 const payload = JSON.parse(message.toString())
                 if(payload['sensor_rs485']) {
                     const raws = payload?.sensor_rs485 
-                    console.log(raws)
                     const data  = parseData(deviceId, raws)
-                    console.log(data.updatedData.level)
-                    const elevasi = Number(sensorMap?.elevasi ?? 0)
-                    const levelAwal = Number(data.updatedData.level)
-
-                    if (Number.isFinite(levelAwal)) {
-                    data.updatedData.level = Number((levelAwal + elevasi).toFixed(2))
-                    }
                     console.log(data.updatedData.level)
                     const sensor = {
                         ...data.updatedData,
