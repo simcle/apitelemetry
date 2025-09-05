@@ -43,7 +43,6 @@ export const startMqttClinet = (fastify) => {
                 if(payload['sensor_rs485']) {
                     const raws = payload?.sensor_rs485 
                     const data  = parseData(deviceId, raws)
-                    console.log(data.updatedData.level)
                     const sensor = {
                         ...data.updatedData,
                         timestamp : new Date()
@@ -52,21 +51,21 @@ export const startMqttClinet = (fastify) => {
                     client.publish('sensor/'+data.deviceId, JSON.stringify(sensor))
                 }
                 if(payload['sensor_420']) {
+                    const sensorMap = getSensorMap(deviceId)
                     let level = 0
                     let instantTraffic = 0
                     let realTimeFlowRate = 0
                     const data = parseInt(payload?.sensor_420[0]?.data)
                     const ma = data / 1000
                     level = scaleCurrentToMeter(ma) + sensorMap?.elevasi || 0
-                   
                     const sensor = {
                         level: level.toFixed(2),
                         instantTraffic: instantTraffic,
                         realTimeFlowRate: realTimeFlowRate,
                         timestamp : new Date()
                     }
-                    
                     addToBuffer(deviceId, sensor)
+                    
                     client.publish('sensor/'+deviceId, JSON.stringify(sensor))
                 }
                 if(payload['mobile']) {
