@@ -41,14 +41,16 @@ export const startMqttClinet = (fastify) => {
             if(topic.startsWith('device/')) {
                 const [, companyId, deviceId] = topic.split('/')
                 const payload = JSON.parse(message.toString())
+                
                 if(payload['sensor_rs485']) {
                     const raws = payload?.sensor_rs485 
-                    const data  = parseData(companyId, deviceId, raws)
+                    const data  = parseData(deviceId, raws)
                     const sensor = {
                         ...data.updatedData,
+                        companyId: companyId,
                         timestamp : new Date()
                     }
-                    addToBuffer(data.companyId, data.deviceId, sensor)
+                    addToBuffer(data.deviceId, sensor)
                     client.publish('sensor/'+data.deviceId, JSON.stringify(sensor))
                 }
                 if(payload['sensor_420']) {
@@ -63,9 +65,10 @@ export const startMqttClinet = (fastify) => {
                         level: level.toFixed(2),
                         instantTraffic: instantTraffic,
                         realTimeFlowRate: realTimeFlowRate,
+                        companyId: companyId,
                         timestamp : new Date()
                     }
-                    addToBuffer(companyId, deviceId, sensor)
+                    addToBuffer(deviceId, sensor)
                     
                     client.publish('sensor/'+deviceId, JSON.stringify(sensor))
                 }

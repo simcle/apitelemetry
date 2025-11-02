@@ -7,8 +7,8 @@ import cron from 'node-cron'
 import mongoose from "mongoose"
 const buffer = new Map()
 
-export const addToBuffer = (companyId, deviceId, data) => {
-    buffer.set(companyId, deviceId, data)
+export const addToBuffer = (deviceId, data) => {
+    buffer.set(deviceId, data)
 }
 
 export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
@@ -40,11 +40,10 @@ export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
 
 }
 
-
 const flushBufferToDB = async () => {
-    for(const [companyId, deviceId, latestData] of buffer.entries()) {
+    for(const [deviceId, latestData] of buffer.entries()) {
         const payloadSensor = { 
-            companyId: companyId,
+            companyId: latestData.companyId,
             deviceId: deviceId,
             level: latestData.level,
             realTimeFlowRate: latestData.realTimeFlowRate,
@@ -58,7 +57,7 @@ const flushBufferToDB = async () => {
             if(alert) {
                 payloadSensor.status = alert.name
                 const payloadAlert = {
-                    companyId: companyId,
+                    companyId: latestData.companyId,
                     deviceId: deviceId,
                     type: alert.name,
                     color: alert.color,
@@ -71,7 +70,6 @@ const flushBufferToDB = async () => {
                     eventBus.emit('alert', data)
                 }
             }
-
             const data = await loggerModel.create(payloadSensor)
 
             buffer.set(deviceId, {

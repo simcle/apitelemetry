@@ -20,7 +20,7 @@ import smsRoutes from './src/routes/smsRoutes.js'
 
 dotenv.config()
 const fastify = Fastify({
-    logger: false
+    logger: true
 })
 
 await fastify.register(cors, {

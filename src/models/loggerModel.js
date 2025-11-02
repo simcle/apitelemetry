@@ -8,7 +8,6 @@ const LoggerSchema = new Schema({
     instantTraffic: {type: Number, default: 0},
     status: {type: String, default: null},
     timestamp: {type: Date, index: true},
-    companyId: { type: Schema.Types.ObjectId, ref: 'Company'}
 }, {
     timestamps: true
 })
