@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 const sensorSchema = new mongoose.Schema({
+    companyId: { type: mongoose.Schema.ObjectId, ref: 'Company'},
     name: {
         type: String,
         required: true

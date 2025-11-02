@@ -1,10 +1,14 @@
 import Fastify from 'fastify'
+import fastifyStatic from '@fastify/static'
+import path from 'path'
 import fromBody from '@fastify/formbody'
 import cors from '@fastify/cors'
 import dotenv from 'dotenv'
 import db from './src/plugins/db.js'
 import jwtAuth from './src/plugins/jwtAuth.js'
 import { startMqttClinet } from './src/plugins/mqttClient.js'
+
+import companyRoutes from './src/routes/companyRoutes.js'
 import userRoutes from './src/routes/userRoutes.js'
 import ptzRoutes from './src/routes/ptzRoutes.js'
 import sensorRoutes from './src/routes/sensorRoutes.js'
@@ -26,6 +30,10 @@ await fastify.register(cors, {
 fastify.addContentTypeParser('application/xml', { parseAs: 'string' }, function (req, body, done) {
   done(null, body)
 })
+fastify.register(fastifyStatic, {
+  root: path.join(process.cwd(), 'public'),
+  prefix: '/',
+})
 await fastify.register(db)
 await fastify.register(jwtAuth)
 await fastify.register(fromBody)
@@ -40,6 +48,7 @@ await fastify.register(loggerRoutes, {prefix: '/api'})
 await fastify.register(mobileUsageRoutes, {prefix: '/api'})
 await fastify.register(alertRoutes, {prefix: '/api'})
 await fastify.register(smsRoutes, {prefix: '/api'})
+await fastify.register(companyRoutes, {prefix: '/api'})
 
 fastify.get('/', async (request, reply) => {
     return {message: 'Backend api'}

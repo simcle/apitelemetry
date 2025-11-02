@@ -1,12 +1,14 @@
 import mongoose from "mongoose";
 const { Schema } = mongoose
 const LoggerSchema = new Schema({
+    companyId: {type: Schema.Types.ObjectId, ref: 'Company'},
     deviceId: {type: Schema.Types.ObjectId, index: true},
     level: {type: Number, default: 0},
     realTimeFlowRate: {type: Number, default: 0},
     instantTraffic: {type: Number, default: 0},
     status: {type: String, default: null},
-    timestamp: {type: Date, index: true}
+    timestamp: {type: Date, index: true},
+    companyId: { type: Schema.Types.ObjectId, ref: 'Company'}
 }, {
     timestamps: true
 })

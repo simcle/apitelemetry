@@ -2,38 +2,39 @@ import sensorModel from '../models/sensorModel.js'
 import { addToMap } from '../utils/sensorData.js'
 
 export const getTelemetyById = async (request, reply) => {
-  const id = request.params.id
+    const id = request.params.id
+    const companyId = request.user.companyId
+    try {
+        let data
 
-  try {
-    let data
+        if (!id || id === 'null' || id === 'undefined') {
+        // Ambil data pertama jika id kosong/null
+            data = await sensorModel.findOne({companyId}).populate('companyId').sort({ createdAt: 1 })
+        } else {
+            data = await sensorModel.findOne({ _id: id }).populate('companyId')
+        }
 
-    if (!id || id === 'null' || id === 'undefined') {
-      // Ambil data pertama jika id kosong/null
-      data = await sensorModel.findOne().sort({ createdAt: 1 })
-    } else {
-      data = await sensorModel.findOne({ _id: id })
-    }
+        if (!data) {
+        return reply.code(404).send({
+            success: false,
+            message: 'Data tidak ditemukan'
+        })
+        }
 
-    if (!data) {
-      return reply.code(404).send({
+        return reply.code(200).send({
+        success: true,
+        data
+        })
+    } catch (error) {
+        return reply.code(400).send({
         success: false,
-        message: 'Data tidak ditemukan'
-      })
+        message: error.message || 'Gagal mengambil data'
+        })
     }
-
-    return reply.code(200).send({
-      success: true,
-      data
-    })
-  } catch (error) {
-    return reply.code(400).send({
-      success: false,
-      message: error.message || 'Gagal mengambil data'
-    })
-  }
 }
 
 export const createTelemetry = async (request, reply) => {
+    const companyId = request.user.companyId
     try {
         const {name, serialNumber, logger, gsmNumber, cctvIp, elevasi, location, sensorType } = request.body
         // Validasi manual contoh (opsional, bisa pakai schema validation)
@@ -44,6 +45,7 @@ export const createTelemetry = async (request, reply) => {
             });
         }
         const data = new sensorModel({
+            companyId,
             name,
             serialNumber,
             cctvIp,
@@ -63,7 +65,6 @@ export const createTelemetry = async (request, reply) => {
         });
     } catch (error) {
         request.log.error(error);
-
         // Handling duplicate serialNumber
         if (error.code === 11000) {
             return reply.code(409).send({
@@ -123,8 +124,9 @@ export const updateTemeletryById = async (request, reply) => {
 }
 
 export const getAllTelemetry = async (request, reply) => {
+    const companyId = request.user.companyId
     try {
-        const data = await sensorModel.find().sort({name: 1})
+        const data = await sensorModel.find({companyId}).sort({name: 1})
         return reply.code(200).send({
             success: true,
             count: data.length,
