@@ -13,8 +13,8 @@ axios.defaults.baseURL= "https://apiawlrbasic.ndpteknologi.com/api/sensor"
 const sendDataToAwlrBasic = (data) => {
     const payload = {
         rawLevel: data.level,
-        rawVelocity: data.instantTraffic,
-        rawFlowrate: data.realTimeFlowRate,
+        rawVelocity: data.realTimeFlowRate,
+        rawFlowrate: data.instantTraffic,
         battery: data.battery.soc,
         signalRssi: -61
     }
