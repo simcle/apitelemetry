@@ -10,15 +10,15 @@ const buffer = new Map()
 
 // ini untuk pengiriman data ke awlr basic
 axios.defaults.baseURL= "https://apiawlrbasic.ndpteknologi.com/api/sensor"
-const sendDataToAwlrBasic = (data) => {
+const sendDataToAwlrBasic = (data, deviceId) => {
     const payload = {
-        rawLevel: data.rawLevel,
-        rawVelocity: data.realTimeFlowRate,
-        rawFlowrate: data.instantTraffic,
-        battery: data.battery.soc,
+        rawLevel: data?.rawLevel,
+        rawVelocity: data?.realTimeFlowRate || 0,
+        rawFlowrate: data?.instantTraffic || 0,
+        battery: data?.battery?.soc || 0,
         signalRssi: -61
     }
-    axios.post('/1765787773634', payload)
+    axios.post('/'+deviceId, payload)
 }
 
 
@@ -58,7 +58,10 @@ export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
 const flushBufferToDB = async () => {
     for(const [deviceId, latestData] of buffer.entries()) {
         if(deviceId == '690c42cafceb61c74088533d') {
-            sendDataToAwlrBasic(latestData)
+            sendDataToAwlrBasic(latestData, '1765787773634')
+        }
+        if( deviceId == '690c43a2fceb61c7408853d7') {
+            sendDataToAwlrBasic(latestData, '1765809690338')
         }
         const payloadSensor = { 
             companyId: latestData.companyId,

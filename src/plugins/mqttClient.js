@@ -63,6 +63,7 @@ export const startMqttClinet = (fastify) => {
                     level = scaleCurrentToMeter(ma) + sensorMap?.elevasi || 0
                     const sensor = {
                         level: level.toFixed(2),
+                        rawLevel: scaleCurrentToMeter(ma),
                         instantTraffic: instantTraffic,
                         realTimeFlowRate: realTimeFlowRate,
                         companyId: companyId,
