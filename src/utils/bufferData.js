@@ -5,7 +5,22 @@ import loggerModel from '../models/loggerModel.js'
 import eventBus from "../events/eventBus.js"
 import cron from 'node-cron'
 import mongoose from "mongoose"
+import axios from "axios"
 const buffer = new Map()
+
+// ini untuk pengiriman data ke awlr basic
+axios.defaults.baseURL= "https://apiawlrbasic.ndpteknologi.com/api/sensor"
+const sendDataToAwlrBasic = (data) => {
+    const payload = {
+        rawLevel: data.level,
+        rawVelocity: data.instantTraffic,
+        rawFlowrate: data.realTimeFlowRate,
+        battery: data.battery.soc,
+        signalRssi: -61
+    }
+    axios.post('/1765787773634', payload)
+}
+
 
 export const addToBuffer = (deviceId, data) => {
     buffer.set(deviceId, data)
@@ -42,6 +57,9 @@ export const setStatusDevice = async (deviceId, status, ts = new Date()) => {
 
 const flushBufferToDB = async () => {
     for(const [deviceId, latestData] of buffer.entries()) {
+        if(deviceId == '690c42cafceb61c74088533d') {
+            sendDataToAwlrBasic(latestData)
+        }
         const payloadSensor = { 
             companyId: latestData.companyId,
             deviceId: deviceId,
