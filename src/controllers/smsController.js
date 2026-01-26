@@ -16,7 +16,7 @@ export const insertSms = async (request, reply) => {
 export const getSms = async (request, reply) => {
     const deviceId = request.params.id 
     try {
-        const data = await SmsModel.find({deviceId: deviceId}).sort({createdAt: -1}).limit(60)
+        const data = await SmsModel.find({deviceId: deviceId}, {sender: "3636"}).sort({createdAt: -1}).limit(60)
         reply.code(200).send({
             success: true,
             data
