@@ -18,6 +18,8 @@ import mobileUsageRoutes from './src/routes/mobileUsageRoutes.js'
 import alertRoutes from './src/routes/alertRoutes.js'
 import smsRoutes from './src/routes/smsRoutes.js'
 
+import customRoutes from './src/routes/customApi.js'
+
 dotenv.config()
 const fastify = Fastify({
     logger: true
@@ -49,6 +51,7 @@ await fastify.register(mobileUsageRoutes, {prefix: '/api'})
 await fastify.register(alertRoutes, {prefix: '/api'})
 await fastify.register(smsRoutes, {prefix: '/api'})
 await fastify.register(companyRoutes, {prefix: '/api'})
+await fastify.register(customRoutes, {prefix: '/api/v1'})
 
 fastify.get('/', async (request, reply) => {
     return {message: 'Backend api'}

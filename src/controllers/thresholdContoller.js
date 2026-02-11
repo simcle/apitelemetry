@@ -1,5 +1,6 @@
 import thresholdModel from '../models/thresholdModel.js'
 import mongoose from 'mongoose'
+
 export const getThresholdByDeviceId = async (request, reply) => {
     const deviceId = new mongoose.Types.ObjectId(request.params.id)
     try {
@@ -66,7 +67,7 @@ export const createOrUpdateThreshold = async (request, reply) => {
                 message: 'Duplicate threshold (deviceId + name) already exists'
             })
         }
-
+        console.log(error)
         return reply.code(500).send({
             success: false,
             message: 'Internal Server Error',

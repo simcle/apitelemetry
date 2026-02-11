@@ -64,7 +64,7 @@ ThresholdSchema.pre('validate', function (next) {
         }
     };
     
-    const defaults = categoryDefaults[this.type];
+    const defaults = categoryDefaults[this.name];
     if (defaults) {
         this.color = defaults.color;
         this.message = defaults.message;
