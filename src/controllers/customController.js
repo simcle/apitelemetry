@@ -3,7 +3,8 @@ import mongoose from "mongoose";
 
 
 export const getAllTelemetry = async (req, res) => {
-    const companyId = new mongoose.Types.ObjectId('698c51789c02938ec7950270')
+    
+    const companyId = new mongoose.Types.ObjectId(`${req.params.companyId}`)
     const datas = await SensorModel.aggregate([
         {
             $match: {companyId: companyId}
