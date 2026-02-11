@@ -57,15 +57,15 @@ export const getWaterStatsByRange = async (request, reply) => {
                     _id: {
                         $dateTrunc: {
                             date: "$createdAt",
-                            unit: "minute",
-                            binSize: 10,         // ✅ Setiap 10 menit
+                            unit: "hour",
+                            binSize: 1,         // ✅ Setiap 1 jam
                             timezone: "Asia/Jakarta"
                         }
                     },
                     deviceId: {$first: '$deviceId'},
-                    level: {$last: '$level'},
-                    realTimeFlowRate: {$last: '$realTimeFlowRate'},
-                    instantTraffic: {$last: '$instantTraffic'},
+                    level: {$avg: '$level'},
+                    realTimeFlowRate: {$avg: '$realTimeFlowRate'},
+                    instantTraffic: {$avg: '$instantTraffic'},
                     timestamp: {$last: '$timestamp'},
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
@@ -90,9 +90,9 @@ export const getWaterStatsByRange = async (request, reply) => {
                         }
                     },
                     deviceId: {$first: '$deviceId'},
-                    level: {$last: '$level'},
-                    realTimeFlowRate: {$last: '$realTimeFlowRate'},
-                    instantTraffic: {$last: '$instantTraffic'},
+                    level: {$avg: '$level'},
+                    realTimeFlowRate: {$avg: '$realTimeFlowRate'},
+                    instantTraffic: {$avg: '$instantTraffic'},
                     timestamp: {$last: '$timestamp'},
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
@@ -117,9 +117,9 @@ export const getWaterStatsByRange = async (request, reply) => {
                         }
                     },
                     deviceId: {$first: '$deviceId'},
-                    level: {$last: '$level'},
-                    realTimeFlowRate: {$last: '$realTimeFlowRate'},
-                    instantTraffic: {$last: '$instantTraffic'},
+                    level: {$avg: '$level'},
+                    realTimeFlowRate: {$avg: '$realTimeFlowRate'},
+                    instantTraffic: {$avg: '$instantTraffic'},
                     timestamp: {$last: '$timestamp'},
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
@@ -144,9 +144,9 @@ export const getWaterStatsByRange = async (request, reply) => {
                         }
                     },
                     deviceId: {$first: '$deviceId'},
-                    level: {$last: '$level'},
-                    realTimeFlowRate: {$last: '$realTimeFlowRate'},
-                    instantTraffic: {$last: '$instantTraffic'},
+                    level: {$avg: '$level'},
+                    realTimeFlowRate: {$avg: '$realTimeFlowRate'},
+                    instantTraffic: {$avg: '$instantTraffic'},
                     timestamp: {$last: '$timestamp'},
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
