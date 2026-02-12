@@ -137,7 +137,7 @@ export const getAllTelemetry = async (req, res) => {
                         }
                     }
                 },
-                status: null,
+                status: '$logger.status',
                 nilai_a: "0.0000",
                 nilai_b: "0.0000",
                 nilai_c: "0.0000",
