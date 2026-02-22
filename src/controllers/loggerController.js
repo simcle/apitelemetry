@@ -36,7 +36,7 @@ export const getWaterStatsByRange = async (request, reply) => {
     let start 
     let query = {}
     switch (range) {
-        case '1D': 
+        case 'real':
         start = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000)
         query = [
             {$match: {
@@ -45,6 +45,49 @@ export const getWaterStatsByRange = async (request, reply) => {
             }},
             {$sort: {createdAt: -1}}
         ]
+        break;
+        case '1D': 
+        start = new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000)
+        query = [
+                {$match: {
+                    deviceId: deviceId,
+                    timestamp: {$gte: start, $lte: new Date()}
+                }},
+                {$group: {
+                    _id: {
+                        $dateTrunc: {
+                            date: "$createdAt",
+                            unit: "hour",
+                            binSize: 1,         // ✅ Setiap 1 jam
+                            timezone: "Asia/Jakarta"
+                        }
+                    },
+                    deviceId: {$first: '$deviceId'},
+                    level: {$avg: '$level'},
+                    realTimeFlowRate: {$avg: '$realTimeFlowRate'},
+                    instantTraffic: {$avg: '$instantTraffic'},
+                    timestamp: {$last: '$timestamp'},
+                    status: {$last: '$status'},
+                    createdAt: {$last: '$createdAt'}
+                }},
+                {$sort: {createdAt: -1}},
+                {
+                    $project: {
+                        deviceId: 1,
+                        level: 1,
+                        realTimeFlowRate: 1,
+                        instantTraffic: 1,
+                        timestamp: {
+                            $dateToString: {
+                                format: "%d/%b/%Y %H:%M",
+                                date: "$_id",
+                                timezone: "Asia/Jakarta"
+                            }
+                        },
+                        status: 1
+                    }
+                }
+            ]
         break;
         case '7D': 
             start = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
@@ -70,7 +113,23 @@ export const getWaterStatsByRange = async (request, reply) => {
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
-                {$sort: {createdAt: -1}}
+                {$sort: {createdAt: -1}},
+                {
+                    $project: {
+                        deviceId: 1,
+                        level: 1,
+                        realTimeFlowRate: 1,
+                        instantTraffic: 1,
+                        timestamp: {
+                            $dateToString: {
+                                format: "%d/%b/%Y %H:%M",
+                                date: "$_id",
+                                timezone: "Asia/Jakarta"
+                            }
+                        },
+                        status: 1
+                    }
+                }
             ]
             break;
         case '1B': 
@@ -97,7 +156,23 @@ export const getWaterStatsByRange = async (request, reply) => {
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
-                {$sort: {createdAt: -1}}
+                {$sort: {createdAt: -1}},
+                {
+                    $project: {
+                        deviceId: 1,
+                        level: 1,
+                        realTimeFlowRate: 1,
+                        instantTraffic: 1,
+                        timestamp: {
+                            $dateToString: {
+                                format: "%d/%b/%Y %H:%M",
+                                date: "$_id",
+                                timezone: "Asia/Jakarta"
+                            }
+                        },
+                        status: 1
+                    }
+                }
             ]
             break;
         case '3B': 
@@ -124,7 +199,23 @@ export const getWaterStatsByRange = async (request, reply) => {
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
-                {$sort: {createdAt: -1}}
+                {$sort: {createdAt: -1}},
+                {
+                    $project: {
+                        deviceId: 1,
+                        level: 1,
+                        realTimeFlowRate: 1,
+                        instantTraffic: 1,
+                        timestamp: {
+                            $dateToString: {
+                                format: "%d/%b/%Y %H:%M",
+                                date: "$_id",
+                                timezone: "Asia/Jakarta"
+                            }
+                        },
+                        status: 1
+                    }
+                }
             ]
             break;
         case '1T':
@@ -151,8 +242,24 @@ export const getWaterStatsByRange = async (request, reply) => {
                     status: {$last: '$status'},
                     createdAt: {$last: '$createdAt'}
                 }},
-                {$sort: {createdAt: -1}}
-            ]
+                {$sort: {createdAt: -1}},
+                {
+                    $project: {
+                        deviceId: 1,
+                        level: 1,
+                        realTimeFlowRate: 1,
+                        instantTraffic: 1,
+                        timestamp: {
+                            $dateToString: {
+                                format: "%d/%b/%Y %H:%M",
+                                date: "$_id",
+                                timezone: "Asia/Jakarta"
+                            }
+                        },
+                        status: 1
+                    }
+                }
+            ]   
     }
     try {
         const data = await loggerModel.aggregate(query)
