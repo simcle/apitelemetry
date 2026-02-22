@@ -187,7 +187,7 @@ export const getWaterStatsByRange = async (request, reply) => {
                         $dateTrunc: {
                             date: "$createdAt",
                             unit: "hour",
-                            binSize: 12,         // ✅ Setiap 12 Jam
+                            binSize: 1,         // ✅ Setiap 1 Jam
                             timezone: "Asia/Jakarta"
                         }
                     },
